@@ -1,0 +1,94 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TextChatService = game:GetService("TextChatService")
+local LocalPlayer = Players.LocalPlayer
+
+-- Универсальная функция для отправки сообщений в чат
+local function chatCmd(msg)
+    if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+        -- Новый чат
+        TextChatService.TextChannels.RBXGeneral:SendAsync(msg)
+    else
+        -- Старый чат
+        ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
+    end
+end
+
+-- Функция генерации случайного IP
+local function generateFakeIP()
+    return tostring(math.random(1, 255)) .. "." ..
+           tostring(math.random(0, 255)) .. "." ..
+           tostring(math.random(0, 255)) .. "." ..
+           tostring(math.random(1, 255))
+end
+
+-- GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 260, 0, 180)
+Frame.Position = UDim2.new(0.35, 0, 0.35, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Frame.Active = true
+Frame.Draggable = true
+Frame.Parent = ScreenGui
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Title.Text = "Fake IP Finder"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 18
+Title.Parent = Frame
+
+local TextBox = Instance.new("TextBox")
+TextBox.Size = UDim2.new(0.8, 0, 0, 30)
+TextBox.Position = UDim2.new(0.1, 0, 0.25, 0)
+TextBox.PlaceholderText = "Enter player name..."
+TextBox.Font = Enum.Font.SourceSans
+TextBox.TextSize = 16
+TextBox.TextColor3 = Color3.new(1, 1, 1)
+TextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+TextBox.Parent = Frame
+
+local Button = Instance.new("TextButton")
+Button.Size = UDim2.new(0.8, 0, 0, 30)
+Button.Position = UDim2.new(0.1, 0, 0.5, 0)
+Button.Text = "To know"
+Button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+Button.TextColor3 = Color3.new(1, 1, 1)
+Button.Font = Enum.Font.SourceSansBold
+Button.TextSize = 16
+Button.Parent = Frame
+
+-- Label для IP
+local IPLabel = Instance.new("TextLabel")
+IPLabel.Size = UDim2.new(0.9, 0, 0, 30)
+IPLabel.Position = UDim2.new(0.05, 0, 0.8, 0)
+IPLabel.BackgroundTransparency = 1
+IPLabel.Text = "IP: ???"
+IPLabel.TextColor3 = Color3.new(1, 1, 1)
+IPLabel.Font = Enum.Font.SourceSansBold
+IPLabel.TextSize = 16
+IPLabel.Parent = Frame
+
+-- Логика кнопки
+Button.MouseButton1Click:Connect(function()
+    local playerName = TextBox.Text
+    if playerName == "" then return end
+
+    -- В чат отправляем только статус
+    chatCmd("Finding out the IP Address of " .. playerName .. "...")
+
+    task.wait(2)
+
+    local fakeIP = generateFakeIP()
+
+    -- В чат пишем без IP (чтобы не замазало решётками)
+    chatCmd("IP Address found successfully! (Check menu)")
+
+    -- В меню показываем настоящий фейковый IP
+    IPLabel.Text = "IP Address: " .. fakeIP
+end)
